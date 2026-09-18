@@ -21,8 +21,8 @@ os.makedirs(hasil_folder, exist_ok=True)
 c = 3
 
 file_gambar = [
-    "0210.jpg",
-    "0211.jpg"
+    "IMG_0210_JPG.rf.88fef2f797fa888a725ec075a039aa57.jpg",
+    "IMG_0211_JPG.rf.88fef2f797fa888a725ec075a039aa57.jpg"
 ]
 
 for file in file_gambar:
