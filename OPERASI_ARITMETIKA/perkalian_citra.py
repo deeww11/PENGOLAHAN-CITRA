@@ -21,16 +21,9 @@ os.makedirs(hasil_folder, exist_ok=True)
 c = 3
 
 file_gambar = [
-    file for file in os.listdir(dataset_folder)
-    if file.lower().endswith(
-        (".jpg", ".jpeg", ".png", ".bmp")
-    )
+    "0210.jpg",
+    "0211.jpg"
 ]
-
-if not file_gambar:
-    print("Tidak ada gambar di dalam folder DATASET GAMBAR.")
-    exit()
-
 
 for file in file_gambar:
 
@@ -38,6 +31,10 @@ for file in file_gambar:
         dataset_folder,
         file
     )
+
+    if not os.path.exists(path_gambar):
+        print(f"Gambar {file} tidak ditemukan.")
+        continue
 
     image = Image.open(path_gambar).convert("RGB")
 
@@ -66,8 +63,7 @@ for file in file_gambar:
             )
 
     nama_file = os.path.splitext(file)[0]
-    nama_hasil = nama_file + "_perkalian.jpg"
-
+    nama_hasil = "perkalian_0210_dan_0211_"+ ".jpg"
     output_file = os.path.join(
         hasil_folder,
         nama_hasil
@@ -76,27 +72,35 @@ for file in file_gambar:
     hasil.save(output_file)
 
     print("------------------------------------------")
-    print(f"File gambar       : {file}")
-    print(f"Nilai skalar      : {c}")
-    print(f"Operasi           : Perkalian")
-    print(f"Hasil disimpan    : {output_file}")
+    print(f"File gambar    : {file}")
+    print(f"Nilai skalar   : {c}")
+    print(f"Operasi        : Perkalian")
+    print(f"Hasil          : {nama_hasil}")
+    print(f"Lokasi         : {output_file}")
     print("------------------------------------------")
 
     plt.figure(figsize=(10, 4))
 
     plt.subplot(1, 2, 1)
     plt.imshow(image)
-    plt.title("Citra Awal")
+    plt.title(f"Citra Awal - {file}")
     plt.axis("off")
 
     plt.subplot(1, 2, 2)
     plt.imshow(hasil)
-    plt.title(f"Citra Setelah Dikalikan {c}")
+    plt.title(f"Perkalian × {c}")
     plt.axis("off")
 
     plt.suptitle(
-        "Perkalian Citra dengan Skalar"
+        f"Operasi Perkalian Citra - {file}"
     )
 
     plt.tight_layout()
     plt.show()
+
+print()
+print("==========================================")
+print("       PERKALIAN CITRA SELESAI")
+print("==========================================")
+print("Hasil tersimpan di:")
+print(hasil_folder)
