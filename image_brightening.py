@@ -16,18 +16,14 @@ file_gambar = [
 
 for file in file_gambar:
 
-    # Lokasi gambar original
     input_path = os.path.join(dataset_folder, file)
 
-    # Membuka gambar
     image = Image.open(input_path).convert("RGB")
 
-    # Melakukan image brightening
     brightened_image = ImageEnhance.Brightness(
         image
     ).enhance(brightness_factor)
 
-    # Nama file hasil
     nama_file, ekstensi = os.path.splitext(file)
 
     output_path = os.path.join(
