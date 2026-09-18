@@ -1,5 +1,6 @@
 import cv2
 from input_citra import input_citra
+from histogram import hitung_histogram, tampilkan_histogram
 
 
 def main():
@@ -39,6 +40,22 @@ def main():
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+    print("\n===================================")
+    print("        PROSES HISTOGRAM")
+    print("===================================")
+
+    data_histogram = hitung_histogram(
+        citra,
+        jenis_citra
+    )
+
+    print("Histogram berhasil dihitung.")
+
+    tampilkan_histogram(
+        data_histogram,
+        jenis_citra
+    )
 
 
 if __name__ == "__main__":
