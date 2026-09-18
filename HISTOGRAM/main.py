@@ -1,7 +1,10 @@
 import cv2
 from input_citra import input_citra
 from histogram import hitung_histogram, tampilkan_histogram
-
+from normalisasi import (
+    normalisasi_histogram,
+    tampilkan_histogram_normalisasi
+)
 
 def main():
 
@@ -57,6 +60,20 @@ def main():
         jenis_citra
     )
 
+    print("\n===================================")
+    print("   HISTOGRAM TERNORMALISASI")
+    print("===================================")
+
+    data_histogram_normalisasi = normalisasi_histogram(
+        data_histogram
+    )
+
+    print("Histogram berhasil dinormalisasi.")
+
+    tampilkan_histogram_normalisasi(
+        data_histogram_normalisasi,
+        jenis_citra
+    )
 
 if __name__ == "__main__":
     main()
