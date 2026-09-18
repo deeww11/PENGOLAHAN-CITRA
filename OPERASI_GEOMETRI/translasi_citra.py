@@ -38,18 +38,15 @@ path_gambar = os.path.join(
 
 image = Image.open(path_gambar).convert("RGB")
 
-# Nilai translasi
 geser_x = 100
 geser_y = 50
 
-# Membuat gambar hasil dengan ukuran yang sama
 hasil = Image.new(
     "RGB",
     image.size,
     (0, 0, 0)
 )
 
-# Melakukan translasi
 hasil.paste(
     image,
     (geser_x, geser_y)
