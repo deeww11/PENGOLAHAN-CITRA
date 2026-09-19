@@ -40,5 +40,34 @@ for i, path_gambar in enumerate(daftar_gambar):
 
     print(f"[{i+1}/{len(daftar_gambar)}] Berhasil: {nama_file}")
 
+    gambar_asli = cv2.imread(daftar_gambar[0])
+
+gambar_asli_rgb = cv2.cvtColor(
+    gambar_asli,
+    cv2.COLOR_BGR2RGB
+)
+
+gambar_negatif = 255 - gambar_asli
+
+gambar_negatif_rgb = cv2.cvtColor(
+    gambar_negatif,
+    cv2.COLOR_BGR2RGB
+)
+
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 2, 1)
+plt.imshow(gambar_asli_rgb)
+plt.title("Gambar Berwarna")
+plt.axis("off")
+
+plt.subplot(1, 2, 2)
+plt.imshow(gambar_negatif_rgb)
+plt.title("Citra Negatif")
+plt.axis("off")
+
+plt.tight_layout()
+plt.show()
+
 print("\nSemua gambar berhasil diproses!")
 print(f"Hasil disimpan di: {folder_output}")
