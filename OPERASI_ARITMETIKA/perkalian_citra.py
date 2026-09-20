@@ -93,7 +93,6 @@ output_file = os.path.join(
 
 hasil.save(output_file)
 
-
 print("------------------------------------------")
 print("Operasi           : Perkalian Citra")
 print("Gambar pertama    : 0215")
@@ -103,23 +102,19 @@ print(f"Lokasi            : {output_file}")
 print("------------------------------------------")
 
 plt.figure(figsize=(15, 5))
-
 plt.subplot(1, 3, 1)
 plt.imshow(image_0215)
 plt.title("Citra 0215")
 plt.axis("off")
-
 plt.subplot(1, 3, 2)
 plt.imshow(image_0216)
 plt.title("Citra 0216")
 plt.axis("off")
 
-
 plt.subplot(1, 3, 3)
 plt.imshow(hasil)
 plt.title("Hasil Perkalian")
 plt.axis("off")
-
 
 plt.suptitle(
     "Operasi Perkalian Citra 0215 × 0216"
@@ -134,3 +129,4 @@ print("       PERKALIAN CITRA SELESAI")
 print("==========================================")
 print("Hasil telah disimpan di:")
 print(output_file)
+
