@@ -3,10 +3,6 @@ import os
 import random
 
 
-# ==========================================
-# MENENTUKAN LOKASI FOLDER DATASET
-# ==========================================
-
 folder_histogram = os.path.dirname(
     os.path.abspath(__file__)
 )
@@ -20,10 +16,6 @@ folder_dataset = os.path.join(
     "DATASET GAMBAR"
 )
 
-
-# ==========================================
-# MENGAMBIL GAMBAR SECARA OTOMATIS
-# ==========================================
 
 def ambil_gambar_otomatis():
 
@@ -44,7 +36,6 @@ def ambil_gambar_otomatis():
         return None
 
 
-    # Memilih satu gambar secara acak
     nama_file = random.choice(
         daftar_gambar
     )
@@ -81,9 +72,6 @@ def ambil_gambar_otomatis():
     return citra
 
 
-# ==========================================
-# MEMILIH JENIS CITRA
-# ==========================================
 
 def pilih_jenis_citra(citra):
 
@@ -103,9 +91,7 @@ def pilih_jenis_citra(citra):
         )
 
 
-        # ==================================
-        # CITRA BINER
-        # ==================================
+      
 
         if pilihan == "1":
 
@@ -134,10 +120,6 @@ def pilih_jenis_citra(citra):
             )
 
 
-        # ==================================
-        # CITRA GRAYSCALE
-        # ==================================
-
         elif pilihan == "2":
 
             citra_grayscale = cv2.cvtColor(
@@ -155,11 +137,6 @@ def pilih_jenis_citra(citra):
                 citra_grayscale,
                 "grayscale"
             )
-
-
-        # ==================================
-        # CITRA RGB
-        # ==================================
 
         elif pilihan == "3":
 
@@ -187,10 +164,6 @@ def pilih_jenis_citra(citra):
                 "Silakan pilih 1, 2, atau 3."
             )
 
-
-# ==========================================
-# FUNGSI UTAMA INPUT CITRA
-# ==========================================
 
 def input_citra():
 
