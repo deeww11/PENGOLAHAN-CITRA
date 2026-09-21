@@ -5,6 +5,7 @@ from normalisasi import (
     normalisasi_histogram,
     tampilkan_histogram_normalisasi
 )
+from statistik import hitung_statistik, tampilkan_statistik
 
 def main():
 
@@ -74,6 +75,20 @@ def main():
         data_histogram_normalisasi,
         jenis_citra
     )
+    print("\n===================================")
+    print("        PROSES STATISTIK CITRA")
+    print("===================================")
+
+    hasil_statistik = hitung_statistik(
+        citra,
+        jenis_citra
+    )
+
+    tampilkan_statistik(
+        hasil_statistik,
+        jenis_citra
+    )
+
 
 if __name__ == "__main__":
     main()

@@ -3,46 +3,109 @@ import os
 import random
 
 
-def ambil_gambar_otomatis():
+# ==========================================
+# MENENTUKAN LOKASI FOLDER DATASET
+# ==========================================
 
-    folder_dataset = "../DATASET GAMBAR"
+folder_histogram = os.path.dirname(
+    os.path.abspath(__file__)
+)
+
+folder_project = os.path.dirname(
+    folder_histogram
+)
+
+folder_dataset = os.path.join(
+    folder_project,
+    "DATASET GAMBAR"
+)
+
+
+# ==========================================
+# MENGAMBIL GAMBAR SECARA OTOMATIS
+# ==========================================
+
+def ambil_gambar_otomatis():
 
     daftar_gambar = [
         file for file in os.listdir(folder_dataset)
-        if file.lower().endswith((".jpg", ".jpeg", ".png", ".bmp"))
+        if file.lower().endswith(
+            (".jpg", ".jpeg", ".png", ".bmp")
+        )
     ]
 
     if not daftar_gambar:
-        print("Tidak ada gambar di dalam folder dataset.")
+
+        print(
+            "Tidak ada gambar di dalam "
+            "folder DATASET GAMBAR."
+        )
+
         return None
 
-    nama_file = random.choice(daftar_gambar)
+
+    # Memilih satu gambar secara acak
+    nama_file = random.choice(
+        daftar_gambar
+    )
+
 
     path_gambar = os.path.join(
         folder_dataset,
         nama_file
     )
 
-    citra = cv2.imread(path_gambar)
+
+    citra = cv2.imread(
+        path_gambar
+    )
+
 
     if citra is None:
+
         print("Gambar gagal dibaca.")
+
         return None
 
-    print("\n=== INPUT CITRA ===")
-    print("Gambar yang diambil secara otomatis:", nama_file)
+
+    print("\n===================================")
+    print("           INPUT CITRA")
+    print("===================================")
+
+    print(
+        "Gambar yang diambil secara otomatis:",
+        nama_file
+    )
+
 
     return citra
 
 
+# ==========================================
+# MEMILIH JENIS CITRA
+# ==========================================
+
 def pilih_jenis_citra(citra):
-    print("\n=== PILIH JENIS CITRA ===")
+
+    print("\n===================================")
+    print("        PILIH JENIS CITRA")
+    print("===================================")
+
     print("1. Citra Biner")
     print("2. Citra Grayscale")
     print("3. Citra Berwarna (RGB)")
 
+
     while True:
-        pilihan = input("\nMasukkan pilihan: ")
+
+        pilihan = input(
+            "\nMasukkan pilihan: "
+        )
+
+
+        # ==================================
+        # CITRA BINER
+        # ==================================
 
         if pilihan == "1":
 
@@ -51,6 +114,7 @@ def pilih_jenis_citra(citra):
                 cv2.COLOR_BGR2GRAY
             )
 
+
             _, citra_biner = cv2.threshold(
                 grayscale,
                 127,
@@ -58,9 +122,21 @@ def pilih_jenis_citra(citra):
                 cv2.THRESH_BINARY
             )
 
-            print("Jenis citra: Biner")
 
-            return citra_biner, "biner"
+            print(
+                "Jenis citra: Biner"
+            )
+
+
+            return (
+                citra_biner,
+                "biner"
+            )
+
+
+        # ==================================
+        # CITRA GRAYSCALE
+        # ==================================
 
         elif pilihan == "2":
 
@@ -69,9 +145,21 @@ def pilih_jenis_citra(citra):
                 cv2.COLOR_BGR2GRAY
             )
 
-            print("Jenis citra: Grayscale")
 
-            return citra_grayscale, "grayscale"
+            print(
+                "Jenis citra: Grayscale"
+            )
+
+
+            return (
+                citra_grayscale,
+                "grayscale"
+            )
+
+
+        # ==================================
+        # CITRA RGB
+        # ==================================
 
         elif pilihan == "3":
 
@@ -80,24 +168,43 @@ def pilih_jenis_citra(citra):
                 cv2.COLOR_BGR2RGB
             )
 
-            print("Jenis citra: RGB")
 
-            return citra_rgb, "rgb"
+            print(
+                "Jenis citra: RGB"
+            )
+
+
+            return (
+                citra_rgb,
+                "rgb"
+            )
+
 
         else:
+
             print(
                 "Pilihan tidak tersedia. "
                 "Silakan pilih 1, 2, atau 3."
             )
 
 
+# ==========================================
+# FUNGSI UTAMA INPUT CITRA
+# ==========================================
+
 def input_citra():
 
     citra = ambil_gambar_otomatis()
 
+
     if citra is None:
+
         return None, None
 
-    citra, jenis_citra = pilih_jenis_citra(citra)
+
+    citra, jenis_citra = pilih_jenis_citra(
+        citra
+    )
+
 
     return citra, jenis_citra
