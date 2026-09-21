@@ -50,19 +50,22 @@ def tampilkan_histogram_normalisasi(
         plt.plot(
             range(256),
             data_histogram_normalisasi["Red"],
-            label="Red"
+            label="Red",
+            color="red"
         )
 
         plt.plot(
             range(256),
             data_histogram_normalisasi["Green"],
-            label="Green"
+            label="Green",
+            color="green"
         )
 
         plt.plot(
             range(256),
             data_histogram_normalisasi["Blue"],
-            label="Blue"
+            label="Blue",
+            color="blue"
         )
 
         plt.title("Histogram Ternormalisasi Citra RGB")
