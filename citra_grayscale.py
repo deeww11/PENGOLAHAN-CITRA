@@ -4,7 +4,6 @@ import glob
 import matplotlib.pyplot as plt
 
 folder_input = "DATASET GAMBAR"
-
 folder_output = "HASIL_GRAYSCALE"
 
 os.makedirs(folder_output, exist_ok=True)
