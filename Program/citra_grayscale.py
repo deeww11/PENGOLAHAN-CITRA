@@ -1,3 +1,4 @@
+
 import cv2
 import os
 import matplotlib.pyplot as plt
@@ -12,6 +13,15 @@ path_gambar = os.path.join(
 # Folder untuk menyimpan hasil
 folder_output = "HASIL_GRAYSCALE"
 os.makedirs(folder_output, exist_ok=True)
+
+# HAPUS HASIL GAMBAR SEBELUMNYA
+for nama_lama in os.listdir(folder_output):
+    path_lama = os.path.join(folder_output, nama_lama)
+
+    if os.path.isfile(path_lama):
+        os.remove(path_lama)
+
+print("Hasil grayscale sebelumnya telah dihapus.")
 
 # Membaca gambar
 gambar = cv2.imread(path_gambar)
