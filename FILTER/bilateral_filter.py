@@ -9,7 +9,8 @@ folder_utama = os.path.dirname(
 
 dataset_folder = os.path.join(
     folder_utama,
-    "DATASET GAMBAR"
+    "DATASET GAMBAR 1",
+    "Images"
 )
 
 hasil_folder = os.path.join(
@@ -20,8 +21,8 @@ hasil_folder = os.path.join(
 os.makedirs(hasil_folder, exist_ok=True)
 
 file_gambar = (
-    "IMG_0258_JPG.rf."
-    "1bb8833eac9343137e2471c6b48e7df2.jpg"
+    "0a64655c-4052-4e5f-a696-2a6cf25d10c9"
+    "___GCREC_Bact.Sp 6017.JPG"
 )
 
 path_gambar = os.path.join(
@@ -29,29 +30,30 @@ path_gambar = os.path.join(
     file_gambar
 )
 
-if not os.path.exists(path_gambar):
+if not os.path.isfile(path_gambar):
     print(f"Gambar {file_gambar} tidak ditemukan.")
-    print(f"Periksa folder: {dataset_folder}")
+    print(f"Periksa lokasi: {path_gambar}")
     raise SystemExit
 
 image = Image.open(path_gambar).convert("RGB")
 lebar, tinggi = image.size
+
+print(f"Gambar berhasil dibaca: {file_gambar}")
+print(f"Ukuran gambar: {lebar} x {tinggi} piksel")
 
 hasil = Image.new("RGB", (lebar, tinggi))
 
 pixel_asli = image.load()
 pixel_hasil = hasil.load()
 
-# Parameter Bilateral Filter
 radius = 1
 sigma_spatial = 1.0
 sigma_intensity = 50.0
 
-# Proses Bilateral Filter dengan kernel 3 x 3
+
 for y in range(radius, tinggi - radius):
     for x in range(radius, lebar - radius):
 
-        # Nilai RGB pixel pusat
         pusat_r, pusat_g, pusat_b = pixel_asli[x, y]
 
         jumlah_r = 0.0
@@ -59,7 +61,6 @@ for y in range(radius, tinggi - radius):
         jumlah_b = 0.0
         jumlah_bobot = 0.0
 
-        # Mengambil pixel di sekitar pixel pusat
         for ky in range(-radius, radius + 1):
             for kx in range(-radius, radius + 1):
 
@@ -68,14 +69,12 @@ for y in range(radius, tinggi - radius):
 
                 r, g, b = pixel_asli[px, py]
 
-                # 1. Bobot jarak spasial
                 jarak = kx**2 + ky**2
 
                 bobot_spasial = math.exp(
                     -jarak / (2 * sigma_spatial**2)
                 )
 
-                # 2. Bobot perbedaan intensitas warna
                 selisih_r = r - pusat_r
                 selisih_g = g - pusat_g
                 selisih_b = b - pusat_b
@@ -91,21 +90,18 @@ for y in range(radius, tinggi - radius):
                     / (2 * sigma_intensity**2)
                 )
 
-                # 3. Menggabungkan kedua bobot
                 bobot = bobot_spasial * bobot_intensitas
 
-                # 4. Menghitung jumlah RGB berbobot
                 jumlah_r += r * bobot
                 jumlah_g += g * bobot
                 jumlah_b += b * bobot
 
                 jumlah_bobot += bobot
 
-        # 5. Normalisasi nilai RGB
         if jumlah_bobot > 0:
-            nilai_r = int(jumlah_r / jumlah_bobot)
-            nilai_g = int(jumlah_g / jumlah_bobot)
-            nilai_b = int(jumlah_b / jumlah_bobot)
+            nilai_r = round(jumlah_r / jumlah_bobot)
+            nilai_g = round(jumlah_g / jumlah_bobot)
+            nilai_b = round(jumlah_b / jumlah_bobot)
 
             pixel_hasil[x, y] = (
                 max(0, min(255, nilai_r)),
@@ -113,7 +109,7 @@ for y in range(radius, tinggi - radius):
                 max(0, min(255, nilai_b))
             )
 
-# Mempertahankan pixel asli pada bagian tepi
+
 for x in range(lebar):
     pixel_hasil[x, 0] = pixel_asli[x, 0]
     pixel_hasil[x, tinggi - 1] = pixel_asli[x, tinggi - 1]
@@ -122,9 +118,8 @@ for y in range(tinggi):
     pixel_hasil[0, y] = pixel_asli[0, y]
     pixel_hasil[lebar - 1, y] = pixel_asli[lebar - 1, y]
 
-# Menyimpan hasil Bilateral Filter
 nama_hasil = (
-    "bilateral_filter_"
+    "bilateral_filter_FIX_"
     + os.path.splitext(file_gambar)[0]
     + ".jpg"
 )
@@ -134,7 +129,7 @@ output_file = os.path.join(
     nama_hasil
 )
 
-hasil.save(output_file)
+hasil.save(output_file, quality=95)
 
 print("------------------------------------------")
 print(f"File gambar      : {file_gambar}")
@@ -145,7 +140,7 @@ print(f"Sigma Intensity  : {sigma_intensity}")
 print(f"Hasil            : {output_file}")
 print("------------------------------------------")
 
-# Menampilkan perbandingan citra
+
 plt.figure(figsize=(12, 5))
 
 plt.subplot(1, 2, 1)

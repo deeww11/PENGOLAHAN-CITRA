@@ -9,7 +9,8 @@ folder_utama = os.path.dirname(
 
 dataset_folder = os.path.join(
     folder_utama,
-    "DATASET GAMBAR"
+    "DATASET GAMBAR 1",
+    "Images"
 )
 
 hasil_folder = os.path.join(
@@ -20,8 +21,8 @@ hasil_folder = os.path.join(
 os.makedirs(hasil_folder, exist_ok=True)
 
 file_gambar = (
-    "IMG_0258_JPG.rf."
-    "1bb8833eac9343137e2471c6b48e7df2.jpg"
+    "0a64655c-4052-4e5f-a696-2a6cf25d10c9"
+    "___GCREC_Bact.Sp 6017.JPG"
 )
 
 path_gambar = os.path.join(
@@ -82,7 +83,7 @@ for y in range(tinggi):
     pixel_hasil[lebar - 1, y] = pixel_asli[lebar - 1, y]
 
 nama_hasil = (
-    "median_filter_"
+    "median_filter_FIX_"
     + os.path.splitext(file_gambar)[0]
     + ".jpg"
 )
