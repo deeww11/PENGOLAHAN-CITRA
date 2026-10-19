@@ -1,73 +1,106 @@
+
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 
-script_folder = os.path.dirname(os.path.abspath(__file__))
+# ==========================================
+# LOKASI FOLDER
+# ==========================================
+script_folder = os.path.dirname(
+    os.path.abspath(__file__)
+)
 
-project_folder = os.path.dirname(script_folder)
+project_folder = os.path.dirname(
+    script_folder
+)
 
 dataset_folder = os.path.join(
     project_folder,
-    "DATASET GAMBAR"
+    "DATASET GAMBAR 1",
+    "Images"
 )
 
 output_folder = os.path.join(
-    project_folder,
+    script_folder,
     "HASIL_THRESHOLDING"
 )
 
-os.makedirs(output_folder, exist_ok=True)
+os.makedirs(
+    output_folder,
+    exist_ok=True
+)
 
-input_filename = "IMG_0230_JPG.rf.6aa737da228dfd6ab26b74bbcd84b98e.jpg"
+# ==========================================
+# NAMA GAMBAR INPUT
+# ==========================================
+input_filename = (
+    "0a64655c-4052-4e5f-a696-2a6cf25d10c9"
+    "___GCREC_Bact.Sp 6017.JPG"
+)
 
 image_path = os.path.join(
     dataset_folder,
     input_filename
 )
 
+# ==========================================
+# INFORMASI AWAL
+# ==========================================
 print("==========================================")
-print("MULTI THRESHOLDING")
+print("           MULTI THRESHOLDING")
 print("==========================================")
 
 print("Lokasi gambar:")
 print(image_path)
 print()
 
+# ==========================================
+# MEMERIKSA FILE GAMBAR
+# ==========================================
+if not os.path.isfile(image_path):
 
-if not os.path.exists(image_path):
-
-    print("❌ FILE GAMBAR TIDAK DITEMUKAN!")
+    print("GAMBAR TIDAK DITEMUKAN!")
     print()
     print("Pastikan nama file sesuai:")
     print(input_filename)
 
-    input("\nTekan ENTER untuk keluar...")
-    exit()
+    raise SystemExit
 
-
+# ==========================================
+# MEMBACA GAMBAR
+# ==========================================
 img = cv2.imread(image_path)
-
 
 if img is None:
 
-    print("❌ GAMBAR GAGAL DIBACA!")
+    print("Gambar gagal dibaca!")
 
-    input("\nTekan ENTER untuk keluar...")
-    exit()
+    raise SystemExit
 
-
-print("✅ Gambar berhasil dibaca!")
+print("Gambar berhasil dibaca!")
 print()
 
+# ==========================================
+# KONVERSI CITRA MENJADI GRAYSCALE
+# ==========================================
 gray = cv2.cvtColor(
     img,
     cv2.COLOR_BGR2GRAY
 )
 
+# ==========================================
+# MENENTUKAN NILAI MULTI THRESHOLDING
+# ==========================================
 T1 = 80
 T2 = 160
 
+# ==========================================
+# PROSES MULTI THRESHOLDING
+# ==========================================
+# Intensitas <= T1       : 0 (hitam)
+# T1 < intensitas <= T2  : 127 (abu-abu)
+# Intensitas > T2        : 255 (putih)
 
 multi = np.zeros_like(gray)
 
@@ -80,36 +113,97 @@ multi[
 
 multi[gray > T2] = 255
 
-output_filename = "multi_thresholding_IMG_0230.png"
+# ==========================================
+# MENYIMPAN HASIL
+# ==========================================
+output_filename = (
+    "multi_thresholding_"
+    + os.path.splitext(input_filename)[0]
+    + ".png"
+)
 
 output_path = os.path.join(
     output_folder,
     output_filename
 )
 
-cv2.imwrite(
+berhasil = cv2.imwrite(
     output_path,
     multi
 )
 
-plt.figure(figsize=(12, 5))
+if not berhasil:
 
-plt.subplot(1, 2, 1)
+    print("Gagal menyimpan hasil Multi Thresholding!")
 
-plt.imshow(
-    gray,
-    cmap="gray"
+    raise SystemExit
+
+# ==========================================
+# MENAMPILKAN INFORMASI HASIL
+# ==========================================
+print("==========================================")
+print("       HASIL MULTI THRESHOLDING")
+print("==========================================")
+
+print("File gambar   :", input_filename)
+print("Operasi       : Multi Thresholding")
+print("Threshold 1   :", T1)
+print("Threshold 2   :", T2)
+print("Nilai keluaran: 0, 127, 255")
+print("Hasil disimpan:", os.path.abspath(output_path))
+
+print("==========================================")
+
+# ==========================================
+# KONVERSI BGR MENJADI RGB UNTUK VISUALISASI
+# ==========================================
+img_rgb = cv2.cvtColor(
+    img,
+    cv2.COLOR_BGR2RGB
 )
 
-plt.title("Grayscale")
+# ==========================================
+# VISUALISASI CITRA
+# ==========================================
+plt.figure(
+    figsize=(15, 5)
+)
+
+# Citra awal
+plt.subplot(1, 3, 1)
+
+plt.imshow(img_rgb)
+
+plt.title(
+    "Citra Awal"
+)
 
 plt.axis("off")
 
-plt.subplot(1, 2, 2)
+# Citra grayscale
+plt.subplot(1, 3, 2)
+
+plt.imshow(
+    gray,
+    cmap="gray",
+    vmin=0,
+    vmax=255
+)
+
+plt.title(
+    "Citra Grayscale"
+)
+
+plt.axis("off")
+
+# Hasil Multi Thresholding
+plt.subplot(1, 3, 3)
 
 plt.imshow(
     multi,
-    cmap="gray"
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
@@ -118,29 +212,18 @@ plt.title(
 
 plt.axis("off")
 
+plt.suptitle(
+    "Hasil Pengolahan Citra dengan Multi Thresholding"
+)
 
 plt.tight_layout()
 
 plt.show()
 
-print("==========================================")
-print("✅ MULTI THRESHOLDING BERHASIL")
-print("==========================================")
-
-print("Input:")
-print(input_filename)
-
+# ==========================================
+# SELESAI
+# ==========================================
 print()
-
-print("Threshold 1 :", T1)
-print("Threshold 2 :", T2)
-
-print()
-
-print("Hasil disimpan di:")
-
-print(output_path)
-
 print("==========================================")
-
-input("\nTekan ENTER untuk selesai...")
+print("     MULTI THRESHOLDING BERHASIL")
+print("==========================================")

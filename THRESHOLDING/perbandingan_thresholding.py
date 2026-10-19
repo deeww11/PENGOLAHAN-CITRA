@@ -1,3 +1,4 @@
+
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,14 +9,12 @@ import os
 # 1. MENENTUKAN FOLDER
 # ==========================================================
 
-folder_utama = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
+script_folder = os.path.dirname(
+    os.path.abspath(__file__)
 )
 
 hasil_folder = os.path.join(
-    folder_utama,
+    script_folder,
     "HASIL_THRESHOLDING"
 )
 
@@ -24,23 +23,32 @@ hasil_folder = os.path.join(
 # 2. NAMA FILE HASIL THRESHOLDING
 # ==========================================================
 
+nama_dasar = (
+    "0a64655c-4052-4e5f-a696-2a6cf25d10c9"
+    "___GCREC_Bact.Sp 6017"
+)
+
 file_binary = (
     "binary_thresholding_"
-    "IMG_0230_JPG.rf.6aa737da228dfd6ab26b74bbcd84b98e.jpg"
+    + nama_dasar
+    + ".png"
 )
 
 file_multi = (
-    "multi_thresholding_IMG_0230.png"
+    "multi_thresholding_"
+    + nama_dasar
+    + ".png"
 )
 
 file_otsu = (
     "otsu_thresholding_"
-    "IMG_0230_JPG.rf.6aa737da228dfd6ab26b74bbcd84b98e.jpg"
+    + nama_dasar
+    + ".png"
 )
 
 
 # ==========================================================
-# 3. MEMBUAT PATH
+# 3. MEMBUAT PATH FILE
 # ==========================================================
 
 path_binary = os.path.join(
@@ -60,33 +68,29 @@ path_otsu = os.path.join(
 
 
 # ==========================================================
-# 4. CEK FILE
+# 4. MEMERIKSA KEBERADAAN FILE
 # ==========================================================
 
-print("==============================================")
-print("       PERBANDINGAN THRESHOLDING")
-print("==============================================")
+print("=" * 60)
+print("          PERBANDINGAN THRESHOLDING")
+print("=" * 60)
 
-if not os.path.exists(path_binary):
+daftar_file = {
+    "Binary Thresholding": path_binary,
+    "Multi Thresholding": path_multi,
+    "Otsu Thresholding": path_otsu
+}
 
-    print("File Binary tidak ditemukan:")
-    print(path_binary)
-    exit()
+for nama_metode, path in daftar_file.items():
 
-
-if not os.path.exists(path_multi):
-
-    print("File Multi tidak ditemukan:")
-    print(path_multi)
-    exit()
-
-
-if not os.path.exists(path_otsu):
-
-    print("File Otsu tidak ditemukan:")
-    print(path_otsu)
-    exit()
-
+    if not os.path.isfile(path):
+        print(f"\nFile {nama_metode} tidak ditemukan:")
+        print(path)
+        print(
+            "\nPastikan ketiga program thresholding "
+            "sudah dijalankan."
+        )
+        raise SystemExit
 
 print("Semua file hasil thresholding ditemukan.")
 print()
@@ -109,261 +113,176 @@ otsu = Image.open(
 ).convert("L")
 
 
-# Ubah menjadi array
-
+# Mengubah citra menjadi array NumPy
 binary_array = np.array(binary)
-
 multi_array = np.array(multi)
-
 otsu_array = np.array(otsu)
 
 
+# Memastikan ukuran citra sama
+if not (
+    binary_array.shape ==
+    multi_array.shape ==
+    otsu_array.shape
+):
+    print("Ukuran citra hasil thresholding berbeda.")
+    print("Binary:", binary_array.shape)
+    print("Multi :", multi_array.shape)
+    print("Otsu  :", otsu_array.shape)
+    raise SystemExit
+
+
 # ==========================================================
-# 6. FUNGSI MENGHITUNG PIXEL BINARY / OTSU
+# 6. FUNGSI MENGHITUNG PIXEL BINARY DAN OTSU
 # ==========================================================
 
 def hitung_binary(citra):
 
-    jumlah_hitam = np.sum(
-        citra == 0
-    )
+    jumlah_hitam = np.sum(citra == 0)
+    jumlah_putih = np.sum(citra == 255)
 
-    jumlah_putih = np.sum(
-        citra == 255
-    )
-
-    total_pixel = (
-        jumlah_hitam +
-        jumlah_putih
-    )
+    total_pixel = citra.size
 
     persen_hitam = (
-        jumlah_hitam /
-        total_pixel
+        jumlah_hitam / total_pixel
     ) * 100
 
     persen_putih = (
-        jumlah_putih /
-        total_pixel
+        jumlah_putih / total_pixel
     ) * 100
 
-    return (
-        jumlah_hitam,
-        jumlah_putih,
-        persen_hitam,
-        persen_putih
-    )
+    return {
+        "hitam": int(jumlah_hitam),
+        "putih": int(jumlah_putih),
+        "abu": 0,
+        "persen_hitam": persen_hitam,
+        "persen_abu": 0.0,
+        "persen_putih": persen_putih
+    }
 
 
 # ==========================================================
-# 7. FUNGSI MENGHITUNG PIXEL MULTI
+# 7. FUNGSI MENGHITUNG PIXEL MULTI THRESHOLDING
 # ==========================================================
 
 def hitung_multi(citra):
 
-    jumlah_hitam = np.sum(
-        citra == 0
-    )
+    jumlah_hitam = np.sum(citra == 0)
+    jumlah_abu = np.sum(citra == 127)
+    jumlah_putih = np.sum(citra == 255)
 
-    jumlah_abu = np.sum(
-        citra == 127
-    )
-
-    jumlah_putih = np.sum(
-        citra == 255
-    )
-
-    total_pixel = (
-        jumlah_hitam +
-        jumlah_abu +
-        jumlah_putih
-    )
+    total_pixel = citra.size
 
     persen_hitam = (
-        jumlah_hitam /
-        total_pixel
+        jumlah_hitam / total_pixel
     ) * 100
 
     persen_abu = (
-        jumlah_abu /
-        total_pixel
+        jumlah_abu / total_pixel
     ) * 100
 
     persen_putih = (
-        jumlah_putih /
-        total_pixel
+        jumlah_putih / total_pixel
     ) * 100
 
-    return (
-        jumlah_hitam,
-        jumlah_abu,
-        jumlah_putih,
-        persen_hitam,
-        persen_abu,
-        persen_putih
-    )
+    return {
+        "hitam": int(jumlah_hitam),
+        "abu": int(jumlah_abu),
+        "putih": int(jumlah_putih),
+        "persen_hitam": persen_hitam,
+        "persen_abu": persen_abu,
+        "persen_putih": persen_putih
+    }
 
 
 # ==========================================================
-# 8. PERHITUNGAN BINARY
+# 8. MENGHITUNG DISTRIBUSI PIXEL
 # ==========================================================
 
-(
-    binary_hitam,
-    binary_putih,
-    binary_persen_hitam,
-    binary_persen_putih
-) = hitung_binary(
+hasil_binary = hitung_binary(
     binary_array
 )
 
-
-# ==========================================================
-# 9. PERHITUNGAN MULTI
-# ==========================================================
-
-(
-    multi_hitam,
-    multi_abu,
-    multi_putih,
-    multi_persen_hitam,
-    multi_persen_abu,
-    multi_persen_putih
-) = hitung_multi(
+hasil_multi = hitung_multi(
     multi_array
 )
 
-
-# ==========================================================
-# 10. PERHITUNGAN OTSU
-# ==========================================================
-
-(
-    otsu_hitam,
-    otsu_putih,
-    otsu_persen_hitam,
-    otsu_persen_putih
-) = hitung_binary(
+hasil_otsu = hitung_binary(
     otsu_array
 )
 
 
 # ==========================================================
-# 11. MENAMPILKAN HASIL PERHITUNGAN
+# 9. MENAMPILKAN HASIL BINARY THRESHOLDING
 # ==========================================================
 
-print("----------------------------------------------")
+print("-" * 60)
 print("BINARY THRESHOLDING")
-print("----------------------------------------------")
+print("-" * 60)
+
+print("Pixel hitam  :", hasil_binary["hitam"])
+print("Pixel putih  :", hasil_binary["putih"])
 
 print(
-    "Pixel hitam  :",
-    binary_hitam
+    f"Persen hitam : "
+    f'{hasil_binary["persen_hitam"]:.2f}%'
 )
 
 print(
-    "Pixel putih  :",
-    binary_putih
+    f"Persen putih : "
+    f'{hasil_binary["persen_putih"]:.2f}%'
 )
 
-print(
-    "Persen hitam :",
-    round(
-        binary_persen_hitam,
-        2
-    ),
-    "%"
-)
 
-print(
-    "Persen putih :",
-    round(
-        binary_persen_putih,
-        2
-    ),
-    "%"
-)
-
+# ==========================================================
+# 10. MENAMPILKAN HASIL MULTI THRESHOLDING
+# ==========================================================
 
 print()
-print("----------------------------------------------")
+print("-" * 60)
 print("MULTI THRESHOLDING")
-print("----------------------------------------------")
+print("-" * 60)
+
+print("Pixel hitam   :", hasil_multi["hitam"])
+print("Pixel abu-abu :", hasil_multi["abu"])
+print("Pixel putih   :", hasil_multi["putih"])
 
 print(
-    "Pixel hitam  :",
-    multi_hitam
+    f'Persen hitam  : '
+    f'{hasil_multi["persen_hitam"]:.2f}%'
 )
 
 print(
-    "Pixel abu-abu:",
-    multi_abu
+    f'Persen abu-abu: '
+    f'{hasil_multi["persen_abu"]:.2f}%'
 )
 
 print(
-    "Pixel putih  :",
-    multi_putih
+    f'Persen putih  : '
+    f'{hasil_multi["persen_putih"]:.2f}%'
 )
 
-print(
-    "Persen hitam :",
-    round(
-        multi_persen_hitam,
-        2
-    ),
-    "%"
-)
 
-print(
-    "Persen abu-abu:",
-    round(
-        multi_persen_abu,
-        2
-    ),
-    "%"
-)
-
-print(
-    "Persen putih :",
-    round(
-        multi_persen_putih,
-        2
-    ),
-    "%"
-)
-
+# ==========================================================
+# 11. MENAMPILKAN HASIL OTSU THRESHOLDING
+# ==========================================================
 
 print()
-print("----------------------------------------------")
+print("-" * 60)
 print("OTSU THRESHOLDING")
-print("----------------------------------------------")
+print("-" * 60)
+
+print("Pixel hitam  :", hasil_otsu["hitam"])
+print("Pixel putih  :", hasil_otsu["putih"])
 
 print(
-    "Pixel hitam  :",
-    otsu_hitam
+    f'Persen hitam : '
+    f'{hasil_otsu["persen_hitam"]:.2f}%'
 )
 
 print(
-    "Pixel putih  :",
-    otsu_putih
-)
-
-print(
-    "Persen hitam :",
-    round(
-        otsu_persen_hitam,
-        2
-    ),
-    "%"
-)
-
-print(
-    "Persen putih :",
-    round(
-        otsu_persen_putih,
-        2
-    ),
-    "%"
+    f'Persen putih : '
+    f'{hasil_otsu["persen_putih"]:.2f}%'
 )
 
 
@@ -372,63 +291,51 @@ print(
 # ==========================================================
 
 print()
-print("==============================================================")
-print("                 TABEL PERBANDINGAN")
-print("==============================================================")
+print("=" * 70)
+print("                    TABEL PERBANDINGAN")
+print("=" * 70)
 
 print(
-    f"{'Metode':<15}"
-    f"{'Hitam (%)':<15}"
-    f"{'Abu-abu (%)':<15}"
-    f"{'Putih (%)':<15}"
+    f"{'Metode':<20}"
+    f"{'Hitam (%)':>12}"
+    f"{'Abu-abu (%)':>15}"
+    f"{'Putih (%)':>12}"
 )
 
-print("-" * 60)
+print("-" * 70)
 
-print(
-    f"{'Binary':<15}"
-    f"{binary_persen_hitam:<15.2f}"
-    f"{'-':<15}"
-    f"{binary_persen_putih:<15.2f}"
-)
+for nama, data in [
+    ("Binary", hasil_binary),
+    ("Multi", hasil_multi),
+    ("Otsu", hasil_otsu)
+]:
 
-print(
-    f"{'Multi':<15}"
-    f"{multi_persen_hitam:<15.2f}"
-    f"{multi_persen_abu:<15.2f}"
-    f"{multi_persen_putih:<15.2f}"
-)
+    print(
+        f"{nama:<20}"
+        f'{data["persen_hitam"]:>12.2f}'
+        f'{data["persen_abu"]:>15.2f}'
+        f'{data["persen_putih"]:>12.2f}'
+    )
 
-print(
-    f"{'Otsu':<15}"
-    f"{otsu_persen_hitam:<15.2f}"
-    f"{'-':<15}"
-    f"{otsu_persen_putih:<15.2f}"
-)
-
-print("==============================================================")
+print("=" * 70)
 
 
 # ==========================================================
-# 13. MENAMPILKAN VISUAL PERBANDINGAN
+# 13. VISUALISASI PERBANDINGAN CITRA
 # ==========================================================
 
 plt.figure(
-    figsize=(16, 5)
+    figsize=(15, 5)
 )
 
-
-# Binary
-
-plt.subplot(
-    1,
-    3,
-    1
-)
+# Binary Thresholding
+plt.subplot(1, 3, 1)
 
 plt.imshow(
-    binary,
-    cmap="gray"
+    binary_array,
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
@@ -438,17 +345,14 @@ plt.title(
 plt.axis("off")
 
 
-# Multi
-
-plt.subplot(
-    1,
-    3,
-    2
-)
+# Multi Thresholding
+plt.subplot(1, 3, 2)
 
 plt.imshow(
-    multi,
-    cmap="gray"
+    multi_array,
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
@@ -458,17 +362,14 @@ plt.title(
 plt.axis("off")
 
 
-# Otsu
-
-plt.subplot(
-    1,
-    3,
-    3
-)
+# Otsu Thresholding
+plt.subplot(1, 3, 3)
 
 plt.imshow(
-    otsu,
-    cmap="gray"
+    otsu_array,
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
@@ -483,7 +384,6 @@ plt.suptitle(
 )
 
 plt.tight_layout()
-
 plt.show()
 
 
@@ -498,37 +398,46 @@ metode = [
 ]
 
 persen_hitam = [
-    binary_persen_hitam,
-    multi_persen_hitam,
-    otsu_persen_hitam
+    hasil_binary["persen_hitam"],
+    hasil_multi["persen_hitam"],
+    hasil_otsu["persen_hitam"]
+]
+
+persen_abu = [
+    hasil_binary["persen_abu"],
+    hasil_multi["persen_abu"],
+    hasil_otsu["persen_abu"]
 ]
 
 persen_putih = [
-    binary_persen_putih,
-    multi_persen_putih,
-    otsu_persen_putih
+    hasil_binary["persen_putih"],
+    hasil_multi["persen_putih"],
+    hasil_otsu["persen_putih"]
 ]
 
-x = np.arange(
-    len(metode)
-)
-
-lebar = 0.35
-
+x = np.arange(len(metode))
+lebar = 0.25
 
 plt.figure(
-    figsize=(9, 5)
+    figsize=(10, 5)
 )
 
 plt.bar(
-    x - lebar / 2,
+    x - lebar,
     persen_hitam,
     lebar,
     label="Hitam"
 )
 
 plt.bar(
-    x + lebar / 2,
+    x,
+    persen_abu,
+    lebar,
+    label="Abu-abu"
+)
+
+plt.bar(
+    x + lebar,
     persen_putih,
     lebar,
     label="Putih"
@@ -544,21 +453,23 @@ plt.xlabel(
 )
 
 plt.ylabel(
-    "Persentase Pixel (%)"
+    "Persentase Piksel (%)"
 )
 
 plt.title(
-    "Perbandingan Distribusi Pixel"
+    "Perbandingan Distribusi Intensitas Piksel"
 )
 
 plt.legend()
-
 plt.tight_layout()
-
 plt.show()
 
 
+# ==========================================================
+# 15. SELESAI
+# ==========================================================
+
 print()
-print("==============================================")
-print("       PERBANDINGAN SELESAI")
-print("==============================================")
+print("=" * 60)
+print("          PERBANDINGAN SELESAI")
+print("=" * 60)

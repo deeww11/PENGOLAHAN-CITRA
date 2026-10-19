@@ -1,29 +1,27 @@
+
 from PIL import Image
 import matplotlib.pyplot as plt
 import os
 
+# ==========================================
+# LOKASI GAMBAR INPUT
+# ==========================================
+# Folder utama: C:\PENGOLAHAN-CITRA
 folder_utama = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 
+# Lokasi folder dataset
 dataset_folder = os.path.join(
     folder_utama,
-    "DATASET GAMBAR"
+    "DATASET GAMBAR 1",
+    "Images"
 )
 
-hasil_folder = os.path.join(
-    folder_utama,
-    "HASIL_THRESHOLDING"
-)
-
-os.makedirs(
-    hasil_folder,
-    exist_ok=True
-)
-
+# Nama gambar yang sama dengan Grayscale
 file_gambar = (
-    "IMG_0230_JPG.rf."
-    "6aa737da228dfd6ab26b74bbcd84b98e.jpg"
+    "0a64655c-4052-4e5f-a696-2a6cf25d10c9"
+    "___GCREC_Bact.Sp 6017.JPG"
 )
 
 path_gambar = os.path.join(
@@ -31,20 +29,59 @@ path_gambar = os.path.join(
     file_gambar
 )
 
-if not os.path.exists(path_gambar):
+# ==========================================
+# FOLDER UNTUK MENYIMPAN HASIL
+# ==========================================
+folder_output = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "HASIL_THRESHOLDING"
+)
 
-    print(
-        f"Gambar {file_gambar} tidak ditemukan."
-    )
+os.makedirs(
+    folder_output,
+    exist_ok=True
+)
 
-    exit()
+# ==========================================
+# MEMERIKSA DAN MEMBACA GAMBAR
+# ==========================================
+if not os.path.isfile(path_gambar):
 
-image = Image.open(
-    path_gambar
-).convert("RGB")
+    print("Gambar tidak ditemukan!")
+    print(f"Lokasi yang dicari: {path_gambar}")
 
+    # Menampilkan nama file yang tersedia
+    if os.path.isdir(dataset_folder):
+
+        print("\nContoh file dalam folder Images:")
+
+        for nama in os.listdir(dataset_folder)[:10]:
+            print(nama)
+
+    else:
+        print(
+            f"Folder dataset tidak ditemukan: {dataset_folder}"
+        )
+
+    raise SystemExit
+
+try:
+    image = Image.open(
+        path_gambar
+    ).convert("RGB")
+
+except Exception as error:
+    print(f"Gagal membaca gambar: {error}")
+    raise SystemExit
+
+# ==========================================
+# KONVERSI CITRA MENJADI GRAYSCALE
+# ==========================================
 grayscale = image.convert("L")
 
+# ==========================================
+# MENGHITUNG HISTOGRAM CITRA GRAYSCALE
+# ==========================================
 histogram = grayscale.histogram()
 
 total_pixel = (
@@ -52,79 +89,79 @@ total_pixel = (
     grayscale.height
 )
 
-jumlah_intensitas_total = 0
+# Menghitung total intensitas seluruh piksel
+jumlah_intensitas_total = sum(
+    intensitas * histogram[intensitas]
+    for intensitas in range(256)
+)
 
-for i in range(256):
-
-    jumlah_intensitas_total += (
-        i * histogram[i]
-    )
-
-
+# ==========================================
+# INISIALISASI PERHITUNGAN OT SU THRESHOLDING
+# ==========================================
 jumlah_background = 0
-
 jumlah_intensitas_background = 0
 
 nilai_threshold_otsu = 0
+nilai_variansi_maksimum = -1
 
-nilai_variansi_maksimum = 0
+# ==========================================
+# MENENTUKAN THRESHOLD OT SU SECARA MANUAL
+# ==========================================
+# Kelas 0 : intensitas <= threshold
+# Kelas 1 : intensitas > threshold
 
+for t in range(256):
 
-for threshold in range(256):
+    # Menambahkan piksel intensitas t ke kelas background
+    jumlah_background += histogram[t]
 
-    jumlah_background += (
-        histogram[threshold]
+    jumlah_intensitas_background += (
+        t * histogram[t]
     )
 
+    # Jika kelas background kosong, lewati
     if jumlah_background == 0:
         continue
 
-
+    # Menghitung jumlah piksel foreground
     jumlah_foreground = (
         total_pixel -
         jumlah_background
     )
 
+    # Jika kelas foreground kosong, lewati
     if jumlah_foreground == 0:
-        break
+        continue
 
-
-    jumlah_intensitas_background += (
-        threshold *
-        histogram[threshold]
-    )
-
-
-    mean_background = (
-        jumlah_intensitas_background /
-        jumlah_background
-    )
-
-
+    # Menghitung jumlah intensitas foreground
     jumlah_intensitas_foreground = (
         jumlah_intensitas_total -
         jumlah_intensitas_background
     )
 
+    # Menghitung rata-rata intensitas setiap kelas
+    mean_background = (
+        jumlah_intensitas_background /
+        jumlah_background
+    )
 
     mean_foreground = (
         jumlah_intensitas_foreground /
         jumlah_foreground
     )
 
-
+    # Menghitung probabilitas setiap kelas
     probabilitas_background = (
         jumlah_background /
         total_pixel
     )
-
 
     probabilitas_foreground = (
         jumlah_foreground /
         total_pixel
     )
 
-
+    # Menghitung variansi antarkelas
     variansi_antar_kelas = (
         probabilitas_background *
         probabilitas_foreground *
@@ -134,150 +171,150 @@ for threshold in range(256):
         ) ** 2
     )
 
-
-    if (
-        variansi_antar_kelas >
-        nilai_variansi_maksimum
-    ):
+    # Memilih threshold dengan variansi terbesar
+    if variansi_antar_kelas > nilai_variansi_maksimum:
 
         nilai_variansi_maksimum = (
             variansi_antar_kelas
         )
 
-        nilai_threshold_otsu = (
-            threshold
-        )
+        nilai_threshold_otsu = t
 
+# Nilai threshold optimal
 threshold = nilai_threshold_otsu
 
+# ==========================================
+# PROSES BINARISASI CITRA
+# ==========================================
 hasil = Image.new(
     "L",
     grayscale.size
 )
 
-pixels_grayscale = (
-    grayscale.load()
-)
+pixels_grayscale = grayscale.load()
+hasil_pixels = hasil.load()
 
-hasil_pixels = (
-    hasil.load()
-)
+for y in range(grayscale.height):
 
+    for x in range(grayscale.width):
 
-for y in range(
-    grayscale.height
-):
+        nilai_pixel = pixels_grayscale[x, y]
 
-    for x in range(
-        grayscale.width
-    ):
-
-        nilai_pixel = (
-            pixels_grayscale[x, y]
-        )
-
-        if nilai_pixel >= threshold:
-
-            hasil_pixels[x, y] = 255
-
-        else:
-
+        # Intensitas <= threshold menjadi hitam
+        if nilai_pixel <= threshold:
             hasil_pixels[x, y] = 0
 
+        # Intensitas > threshold menjadi putih
+        else:
+            hasil_pixels[x, y] = 255
+
+# ==========================================
+# MENYIMPAN HASIL OT SU THRESHOLDING
+# ==========================================
 nama_file = os.path.splitext(
-    file_gambar
+    os.path.basename(path_gambar)
 )[0]
 
 nama_hasil = (
-    "otsu_thresholding_"
-    + nama_file
-    + ".jpg"
+    "otsu_thresholding_" +
+    nama_file +
+    ".png"
 )
 
-output_file = os.path.join(
-    hasil_folder,
+path_hasil = os.path.join(
+    folder_output,
     nama_hasil
 )
 
-hasil.save(
-    output_file
-)
+try:
+    hasil.save(
+        path_hasil,
+        format="PNG"
+    )
 
-print("------------------------------------------")
-print("METODE OTSU THRESHOLDING")
-print("------------------------------------------")
-print(
-    f"File gambar      : {file_gambar}"
-)
-print(
-    f"Nilai T Otsu     : {threshold}"
-)
-print(
-    "Penentuan T      : Otomatis"
-)
-print(
-    f"Hasil disimpan   : {output_file}"
-)
-print("------------------------------------------")
+except Exception as error:
+    print(f"Gagal menyimpan hasil: {error}")
+    raise SystemExit
 
+# ==========================================
+# MENAMPILKAN INFORMASI HASIL
+# ==========================================
+print("=" * 55)
+print("             OTSU THRESHOLDING")
+print("=" * 55)
+
+print(f"File gambar       : {os.path.basename(path_gambar)}")
+print(f"Ukuran citra      : {grayscale.width} x {grayscale.height}")
+print(f"Total piksel      : {total_pixel}")
+print(f"Nilai threshold   : {threshold}")
+print(f"Variansi maksimum : {nilai_variansi_maksimum:.4f}")
+print("Penentuan threshold: Otomatis")
+print(f"Hasil disimpan    : {os.path.abspath(path_hasil)}")
+
+print("=" * 55)
+
+# ==========================================
+# VISUALISASI CITRA ASLI, GRAYSCALE,
+# DAN HASIL OT SU THRESHOLDING
+# ==========================================
 plt.figure(
-    figsize=(15, 4)
+    figsize=(15, 5)
 )
 
+# Citra asli
 plt.subplot(1, 3, 1)
 
-plt.imshow(
-    image
-)
+plt.imshow(image)
 
 plt.title(
     "Citra Awal"
 )
 
-plt.axis(
-    "off"
-)
+plt.axis("off")
 
+# Citra grayscale
 plt.subplot(1, 3, 2)
 
 plt.imshow(
     grayscale,
-    cmap="gray"
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
     "Citra Grayscale"
 )
 
-plt.axis(
-    "off"
-)
+plt.axis("off")
 
+# Hasil Otsu
 plt.subplot(1, 3, 3)
 
 plt.imshow(
     hasil,
-    cmap="gray"
+    cmap="gray",
+    vmin=0,
+    vmax=255
 )
 
 plt.title(
-    f"Otsu Thresholding\n"
-    f"T = {threshold}"
+    f"Otsu Thresholding\nT = {threshold}"
 )
 
-plt.axis(
-    "off"
-)
-
+plt.axis("off")
 
 plt.suptitle(
-    "Otsu Thresholding"
+    "Perbandingan Citra Sebelum dan Sesudah Otsu Thresholding"
 )
 
 plt.tight_layout()
 
 plt.show()
 
+# ==========================================
+# VISUALISASI HISTOGRAM DAN THRESHOLD
+# ==========================================
 plt.figure(
     figsize=(10, 5)
 )
@@ -292,9 +329,8 @@ plt.axvline(
     threshold,
     linestyle="--",
     linewidth=2,
-    label=f"T Otsu = {threshold}"
+    label=f"Threshold Otsu = {threshold}"
 )
-
 
 plt.title(
     "Histogram Citra Grayscale"
@@ -319,16 +355,11 @@ plt.tight_layout()
 
 plt.show()
 
+# ==========================================
+# SELESAI
+# ==========================================
 print()
 
-print(
-    "=========================================="
-)
-
-print(
-    "       OTSU THRESHOLDING SELESAI"
-)
-
-print(
-    "=========================================="
-)
+print("=" * 55)
+print("       OTSU THRESHOLDING SELESAI")
+print("=" * 55)
